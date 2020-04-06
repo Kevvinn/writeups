@@ -7,7 +7,7 @@
 
 > Welcome to the House of Madness. Can you pwn your way to the keys to get the relic?
 > Note: ASLR is disabled for this challenge
-> [Download](./challenge)
+> [Download](./challenge?raw=true)
 
 ## Solution
 
