@@ -13,11 +13,11 @@
 
 To preface, this solve was after the challenge environment was fixed with ASLR being disabled. A solve while ASLR was enabled was possible.
 
-While messing around with the binary at first we are met with a direction to enter 'Stephen' in room 4.
+While messing around with the binary at first we are met with a direction to enter `Stephen` in room 4.
 
 ![](./img/programRun.png)
 
-Upon further analysis with Ghidra, we see that in room 4, we unlock access to a hidden room by entering 'Stephen' that includes an unsanitized gets that would overflow 'local_1c'
+Upon further analysis with Ghidra, we see that in room 4, we unlock access to a hidden room by entering `Stephen` that includes an unsanitized gets that would allow an overflow of `local_1c`
 
 ![](./img/room4.png)
 
@@ -27,9 +27,9 @@ Ok, cool! Overwrite buffer, overwrite eip, call get_flag(), capture the...
 
 \>:(
 
-Alright step it back. Taking a look at get_flag() we see checks for 4 keys that are initialized by 4 other functions: 'get_key1', 'get_key2','AAsDrwEk','set_key4'
-While reversing the functions, it is important to note that 'get_key2' will not initialize 'key 2' if 'key 1' is already initialized. In addition we see that 'get_key1' takes an argument and compares it to 0xfeedc0de.
-The obscure function 'AAsDrwEk' sets 'key 3' without any preconditions. Finally, 'set_key4' initializes 'key4' once the previous keys have been set. 
+Alright step it back. Taking a look at get_flag() we see checks for 4 keys that are initialized by 4 other functions: `get_key1`, `get_key2`,`AAsDrwEk`,`set_key4`
+While reversing the functions, it is important to note that `get_key2` will not initialize `key 2` if `key 1` is already initialized. In addition we see that `get_key1` takes an argument and compares it to 0xfeedc0de.
+The obscure function `AAsDrwEk` sets `key 3 without any preconditions. Finally, `set_key4` initializes `key4` once the previous keys have been set. 
 Ok, cool. Game plan is:
 
 ![](./img/gameplan.png)
@@ -57,9 +57,9 @@ Some quick debugging shows that when get_key4 returns, esp is pointing to get_ke
 ![](./img/gdb.png)
 
 To understand what needs to be accomplished, it is pivotal to understand what the ret instruction does. ret will take the value at esp's address and pop it into eip and then increment esp.
-Therefore, in order to have 'get_key1' to ret into 'get_flag' which is at 'esp + 0x4' on the stack, I need to somehow increment esp. Something to simply move 'get_flag' to the top of the stack...
-Oh yeah! A ROP gadget to pop off '0xfeedcode' off the stack and then ret into 'get_flag'!
-Using ```ROPgadget --binary ./houseof | grep pop```, we find a single 'pop ebx; ret' instruction which does exactly that!
+Therefore, in order to have `get_key1` to ret into `get_flag` which is at `esp + 0x4` on the stack, I need to somehow increment esp. Something to simply move `get_flag` to the top of the stack...
+Oh yeah! A ROP gadget to pop off `0xfeedcode` off the stack and then ret into `get_flag`!
+Using ```ROPgadget --binary ./houseof | grep pop```, we find a single `pop ebx; ret` instruction which does exactly that!
 Now just add that to the exploit and claim the flag to satisfy your lack of sleep.
 ```python
 get_flag = 0x5655686b
